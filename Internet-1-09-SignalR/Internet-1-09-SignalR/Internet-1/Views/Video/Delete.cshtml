@@ -1,0 +1,29 @@
+﻿@model Internet_1.ViewModels.LessonVideoModel
+
+@{
+    ViewData["Title"] = "Video Sil";
+    Layout = "_LayoutAdmin"; // Admin layout'ını kullanıyoruz
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <h3>Video Adı: @Model.Name</h3>
+    <p><strong>Video URL:</strong> @Model.VideoUrl</p> <!-- Video URL burada gösterilecek -->
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="alert alert-warning">
+        <strong>Uyarı!</strong> Bu videoyu silmek istediğinizden emin misiniz?
+    </div>
+
+    <button type="submit" class="btn btn-danger">Evet, Sil</button>
+    <a href="@Url.Action("Index", "Video")" class="btn btn-secondary">İptal</a>
+</form>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+
+}

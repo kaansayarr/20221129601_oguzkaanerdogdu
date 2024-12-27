@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Erişim Reddedildi";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="alert alert-danger">
+                <h1 class="display-4"><i class="fa fa-exclamation-triangle"></i></h1>
+                <h2>Erişim Reddedildi</h2>
+                <p class="lead">Bu sayfaya erişim yetkiniz bulunmamaktadır.</p>
+                <hr>
+                <p>Lütfen uygun yetkiye sahip bir hesapla giriş yapın veya ana sayfaya dönün.</p>
+                <a href="@Url.Action("Index", "Home")" class="btn btn-primary">
+                    <i class="fa fa-home"></i> Ana Sayfaya Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

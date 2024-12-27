@@ -1,0 +1,219 @@
+﻿@{
+    ViewData["Title"] = "Admin Panel";
+    Layout = "_LayoutAdmin";
+}
+
+@section CardHeader {
+    <span>Genel Bakış</span>
+}
+
+<div class="row">
+    <!-- Toplam Ders Sayısı -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Toplam Ders</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="lessonCount">@ViewBag.TotalLessons</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-book fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toplam Video Sayısı -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Toplam Video</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="videoCount">@ViewBag.TotalVideos</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-video fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toplam Eğitmen Sayısı -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Toplam Eğitmen</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="instructorCount">
+                            @ViewBag.TotalInstructors</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-chalkboard-teacher fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toplam Kullanıcı Sayısı -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Toplam Kullanıcı</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="userCount">@ViewBag.TotalUsers</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Toastr CSS ve JS -->
+
+
+    <script>
+        $(document).ready(function () {
+            // Toastr ayarları
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-bottom-right",
+                "timeOut": "3000"
+            };
+
+            // SignalR bağlant��sını kur
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/generalhub", {
+                    skipNegotiation: true,
+                    transport: signalR.HttpTransportType.WebSockets
+                })
+                .withAutomaticReconnect()
+                .configureLogging(signalR.LogLevel.Information)
+                .build();
+
+            // Sayaçları güncelle
+            function updateCounts() {
+                $.ajax({
+                    url: '/Admin/GetCounts',
+                    method: 'GET',
+                    success: function (data) {
+                        if (data.error) {
+                            console.error("Sayılar alınırken hata:", data.error);
+                            return;
+                        }
+                        console.log("Sayılar güncellendi:", data);
+                        $("#lessonCount").text(data.lessonCount);
+                        $("#videoCount").text(data.videoCount);
+                        $("#instructorCount").text(data.instructorCount);
+                        $("#userCount").text(data.userCount);
+                    },
+                    error: function (err) {
+                        console.error("Sayılar güncellenirken hata:", err);
+                    }
+                });
+            }
+
+            // SignalR bağlantısını başlat
+            async function startConnection() {
+                try {
+                    await connection.start();
+                    console.log("SignalR Connected!");
+                    updateCounts(); // İlk yüklemede sayıları al
+                } catch (err) {
+                    console.error("SignalR Connection Error:", err);
+                    setTimeout(startConnection, 5000);
+                }
+            }
+
+            // SignalR event listeners
+            connection.on("onLessonAdd", function () {
+                console.log("Ders eklendi");
+                toastr.success("Ders eklendi!");
+                updateCounts();
+            });
+            connection.on("onLessonUpdate", function () {
+                console.log("Ders güncellendi");
+                toastr.success("Ders güncellendi!");
+                updateCounts();
+            });
+
+            connection.on("onVideoAdd", function () {
+                console.log("Video eklendi");
+                toastr.success("Video eklendi!");
+                updateCounts();
+            });
+
+            connection.on("onVideoUpdate", function () {
+                console.log("Video güncellendi");
+                toastr.success("Video güncellendi!");
+                updateCounts();
+            });
+
+            connection.on("onInstructorAdd", function () {
+                console.log("Eğitmen eklendi");
+                toastr.success("Eğitmen eklendi!");
+                updateCounts();
+            });
+            connection.on("onInstructorUpdate", function () {
+                console.log("Eğitmen Güncellendi");
+                toastr.success("Eğitmen Güncellendi!");
+                updateCounts();
+            });
+
+            connection.on("onUserAdd", function () {
+                console.log("Kullanıcı eklendi!");
+                toastr.success("Kullanıcı eklendi!");
+                updateCounts();
+            });
+            connection.on("onUserUpdate", function () {
+                console.log("Kullanıcı güncellendi");
+                toastr.success("Kullanıcı güncellendi!");
+                updateCounts();
+            });
+            connection.on("onLessonDelete", function () {
+                console.log("Ders silindi");
+                toastr.warning("Bir ders silindi!");
+                updateCounts();
+            });
+
+            connection.on("onVideoDelete", function () {
+                console.log("Video silindi");
+                toastr.warning("Bir video silindi!");
+                updateCounts();
+            });
+
+            connection.on("onInstructorDelete", function () {
+                console.log("Eğitmen silindi");
+                toastr.warning("Bir eğitmen silindi!");
+                updateCounts();
+            });
+
+            connection.on("onUserDelete", function () {
+                console.log("Kullanıcı silindi");
+                toastr.warning("Bir kullanıcı silindi!");
+                updateCounts();
+            });
+
+            // Bağlantıyı başlat
+            startConnection();
+
+            // Her 3 saniyede bir sayıları güncelle
+            setInterval(updateCounts, 3000);
+        });
+    </script>
+}

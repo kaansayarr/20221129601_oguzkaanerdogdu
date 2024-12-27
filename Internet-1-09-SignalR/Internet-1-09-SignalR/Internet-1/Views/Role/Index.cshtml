@@ -1,0 +1,53 @@
+@model List<UserRoleModel>
+
+@{
+    ViewData["Title"] = "Roller";
+    Layout = "_LayoutAdmin";
+}
+
+@section CardHeader {
+            <span>Roller</span>
+}
+
+<div class="mb-3">
+    <a href="@Url.Action("Add", "Role")" class="btn btn-primary btn-sm">Yeni Rol Ekle</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Rol Adı</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in Model)
+            {
+                        <tr>
+                            <td>@role.Name</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="@Url.Action("Update", "Role", new { id = role.Id })" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i> Düzenle
+                                    </a>
+                            @if (role.Name != "Admin")
+                            {
+                                                <a href="@Url.Action("Delete", "Role", new { id = role.Id })" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash"></i> Sil
+                                                </a>
+                            }
+                                </div>
+                            </td>
+                        </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Any())
+{
+            <div class="alert alert-info">
+                Henüz hiç rol eklenmemiş.
+            </div>
+} 

@@ -1,0 +1,48 @@
+﻿@model LessonModel
+
+@{
+    ViewData["Title"] = "Ders Sil";
+    Layout = "_LayoutAdmin";
+}
+
+@section CardHeader {
+    <span>Ders Sil</span>
+}
+<body>
+    <div class="container">
+    <div class="alert alert-danger">
+        <h4>Bu dersi silmek istediğinizden emin misiniz?</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">Ders Adı:</dt>
+            <dd class="col-sm-10">@Model.Name</dd>
+
+            <dt class="col-sm-2">Açıklama:</dt>
+            <dd class="col-sm-10">@Model.Description</dd>
+
+            <dt class="col-sm-2">Fiyat:</dt>
+            <dd class="col-sm-10">@Model.Price.ToString("C")</dd>
+
+            @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+            {
+                <dt class="col-sm-2">Kapak Resmi:</dt>
+                <dd class="col-sm-10">
+                    <img src="@Model.CoverImageUrl" alt="@Model.Name" style="max-width: 200px;" />
+                </dd>
+            }
+        </dl>
+    </div>
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Sil</button>
+        <a href="@Url.Action("Index", "Lesson")" class="btn btn-secondary">İptal</a>
+    </form>
+</div>
+@section Scripts{
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }
+</body>
+

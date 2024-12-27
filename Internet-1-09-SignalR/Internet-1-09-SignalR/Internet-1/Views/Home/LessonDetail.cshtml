@@ -1,0 +1,83 @@
+@model LessonModel
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8">
+            @if (!string.IsNullOrEmpty(Model.VideoUrl))
+            {
+                    <div class="mb-4">
+                        <div class="ratio ratio-16x9">
+                            <video controls>
+                                <source src="@Model.VideoUrl" type="video/mp4">
+                                Tarayıcınız video etiketini desteklemiyor.
+                            </video>
+                        </div>
+                    </div>
+            }
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h1 class="card-title h2 mb-4">@Model.Name</h1>
+                    <div class="d-flex align-items-center mb-4">
+                        <span class="badge bg-primary me-2">@Model.Price.ToString("C")</span>
+                        @if (!string.IsNullOrEmpty(Model.InstructorFullname))
+                        {
+                                <span class="badge bg-info">Eğitmen: @Model.InstructorFullname</span>
+                        }
+                    </div>
+                    <h5>Ders Açıklaması</h5>
+                    <p class="card-text">@Model.Description</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+                    {
+                            <img src="@Model.CoverImageUrl" alt="@Model.Name" class="img-fluid rounded mb-4" />
+                    }
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg">
+                            Şimdi Satın Al
+                        </button>
+                        <button class="btn btn-outline-primary btn-lg">
+                            Sepete Ekle
+                        </button>
+                    </div>
+
+                    <hr />
+
+                    <h5 class="mb-3">Bu Derste Öğrenecekleriniz:</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Temel kavramlar ve prensipler
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Pratik uygulamalar ve örnekler
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            İleri seviye teknikler
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Eğitmen Hakkında</h5>
+                    <p class="card-text">@Model.InstructorFullname</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

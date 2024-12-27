@@ -1,0 +1,78 @@
+﻿@model List<UserModel>
+
+@{
+    ViewData["Title"] = "Kullanıcılar";
+    Layout = "_LayoutAdmin";
+}
+
+@section CardHeader {
+    <span>Kullanıcılar</span>
+}
+
+<div class="mb-3">
+    <a href="@Url.Action("Add", "User")" class="btn btn-primary btn-sm">Yeni Kullanıcı Ekle</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Profil Fotoğrafı</th>
+                <th>Kullanıcı Adı</th>
+                <th>Ad Soyad</th>
+                <th>E-posta</th>
+                <th>Roller</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td style="width: 100px;">
+                        @if (!string.IsNullOrEmpty(user.PhotoUrl))
+                        {
+                            <img src="~/userPhotos/@user.PhotoUrl" alt="@user.UserName" class="img-thumbnail"
+                                style="max-width: 100px;" />
+                        }
+                        else
+                        {
+                            <img src="~/images/no-image.jpg" alt="Varsayılan Resim" class="img-thumbnail"
+                                style="max-width: 100px;" />
+                        }
+                    </td>
+                    <td>@user.UserName</td>
+                    <td>@user.FullName</td>
+                    <td>@user.Email</td>
+                    <td>
+                        @foreach (var role in user.Role)
+                        {
+                            <span class="badge bg-info me-1">@role</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="@Url.Action("Update", "User", new { id = user.Id })" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </a>
+                            <a href="@Url.Action("Delete", "User", new { id = user.Id })" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Sil
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Henüz hiç kullanıcı eklenmemiş.
+    </div>
+}
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+}

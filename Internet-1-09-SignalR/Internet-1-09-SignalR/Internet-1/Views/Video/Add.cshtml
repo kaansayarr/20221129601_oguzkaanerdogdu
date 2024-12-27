@@ -1,0 +1,68 @@
+﻿@model LessonVideoModel
+
+@{
+    ViewData["Title"] = "Video Ekle";
+    Layout = "_LayoutAdmin";
+}
+
+@section CardHeader {
+    <span>Video Ekle</span>
+}
+
+<div class="container">
+    <form asp-action="Add" method="post" enctype="multipart/form-data">
+        <div class="form-group mb-3">
+            <label asp-for="Name">Video Adı</label>
+            <input asp-for="Name" class="form-control" required />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="VideoFile">Video Dosyası</label>
+            <input type="file" asp-for="VideoFile" class="form-control" accept="video/*" required />
+            <span asp-validation-for="VideoFile" class="text-danger"></span>
+            <div id="videoPreview" class="mt-2"></div>
+        </div>
+
+        <div class="form-group mb-3">
+            <div class="form-check">
+                <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                <label asp-for="IsActive" class="form-check-label">Aktif</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Ekle</button>
+            <a href="@Url.Action("Index", "Video")" class="btn btn-secondary">İptal</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Video önizleme
+            $('#VideoFile').change(function () {
+                var input = this;
+                var videoPreview = $('#videoPreview');
+
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        videoPreview.html(`
+                                    <video width="320" height="240" controls>
+                                        <source src="${e.target.result}" type="video/mp4">
+                                        Tarayıcınız video etiketini desteklemiyor.
+                                    </video>
+                                `);
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+                } else {
+                    videoPreview.empty();
+                }
+            });
+        });
+    </script>
+}

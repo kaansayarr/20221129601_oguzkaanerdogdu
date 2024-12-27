@@ -1,0 +1,148 @@
+﻿@model LessonViewModel
+
+@{
+    ViewData["Title"] = "Dersler";
+    Layout = "_LayoutAdmin";
+}
+
+@section CardHeader {
+    <span>Dersler</span>
+}
+
+<div class="mb-3">
+    <a href="@Url.Action("Add", "Lesson")" class="btn btn-primary btn-sm">Yeni Ders Ekle</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Kapak Resmi</th>
+                <th>Ders Adı</th>
+                <th>Açıklama</th>
+                <th>Fiyat</th>
+                <th>Eğitmen</th>
+                <th>Video</th>
+                <th>Durum</th>
+                <th>Oluşturulma Tarihi</th>
+                <th>Güncellenme Tarihi</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var lesson in Model.Lessons)
+            {
+                var instructor = Model.Instructors.FirstOrDefault(i => i.Id == lesson.InstructorId);
+                var video = Model.Videos.FirstOrDefault(v => v.Id == lesson.VideoId);
+
+                <tr>
+                    <td style="width: 100px;">
+                        @if (!string.IsNullOrEmpty(lesson.CoverImageUrl))
+                        {
+                            <img src="@lesson.CoverImageUrl" alt="@lesson.Name" class="img-thumbnail"
+                                style="max-width: 100px;" />
+                        }
+                        else
+                        {
+                            <img src="/images/no-image.jpg" alt="Varsayılan Resim" class="img-thumbnail"
+                                style="max-width: 100px;" />
+                        }
+                    </td>
+                    <td>
+                        <a>
+                            @lesson.Name
+                        </a>
+                    </td>
+                    <td>@(lesson.Description?.Length > 50 ? lesson.Description.Substring(0, 50) + "..." :
+                            lesson.Description)</td>
+                    <td>@lesson.Price.ToString("C")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(lesson.InstructorFullname))
+                        {
+                            <span class="badge bg-info">@lesson.InstructorFullname</span>
+                        }
+                    </td>
+                    <td>
+                        @if (video != null && !string.IsNullOrEmpty(video.VideoUrl))
+                        {
+                            <button type="button" class="btn btn-sm btn-info"
+                                onclick="playVideo('@video.VideoUrl', '@video.Name')">
+                                <i class="fas fa-play"></i> İzle
+                            </button>
+                        }
+                    </td>
+                    <td>
+                        @if (lesson.IsActive)
+                        {
+                            <span class="badge bg-success">Aktif</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Pasif</span>
+                        }
+                    </td>
+                    <td>@lesson.Created.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@lesson.Updated.ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="@Url.Action("Update", "Lesson", new { id = lesson.Id })"
+                                class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </a>
+                            <a href="@Url.Action("Delete", "Lesson", new { id = lesson.Id })" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Sil
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Lessons.Any())
+{
+    <div class="alert alert-info">
+        Henüz hiç ders eklenmemiş.
+    </div>
+}
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <video id="modalVideo" width="100%" controls>
+                    <source src="" type="video/mp4">
+                    Tarayıcınız video etiketini desteklemiyor.
+                </video>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function playVideo(url, title) {
+            var modal = new bootstrap.Modal(document.getElementById('videoModal'));
+            var video = document.getElementById('modalVideo');
+            var modalTitle = document.getElementById('videoModalTitle');
+
+            video.src = url;
+            modalTitle.textContent = title;
+            modal.show();
+
+            // Modal kapandığında videoyu durdur
+            $('#videoModal').on('hidden.bs.modal', function () {
+                video.pause();
+                video.currentTime = 0;
+            });
+        }
+    </script>
+    <partial name="_ValidationScriptsPartial" />
+
+}

@@ -1,0 +1,53 @@
+﻿@model UserModel
+
+@{
+    ViewData["Title"] = "Kullanıcı Sil";
+    Layout = "_LayoutAdmin";
+}
+
+@section CardHeader {
+    <span>Kullanıcı Sil</span>
+}
+
+<div class="container">
+    <div class="alert alert-danger">
+        <h4>Bu kullanıcıyı silmek istediğinizden emin misiniz?</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">Kullanıcı Adı:</dt>
+            <dd class="col-sm-10">@Model.UserName</dd>
+
+            <dt class="col-sm-2">Ad Soyad:</dt>
+            <dd class="col-sm-10">@Model.FullName</dd>
+
+            <dt class="col-sm-2">E-posta:</dt>
+            <dd class="col-sm-10">@Model.Email</dd>
+
+            <dt class="col-sm-2">Roller:</dt>
+            <dd class="col-sm-10">
+                @foreach (var role in Model.Role)
+                {
+                    <span class="badge bg-info me-1">@role</span>
+                }
+            </dd>
+
+            @if (!string.IsNullOrEmpty(Model.PhotoUrl))
+            {
+                <dt class="col-sm-2">Profil Fotoğrafı:</dt>
+                <dd class="col-sm-10">
+                    <img src="~/userPhotos/@Model.PhotoUrl" alt="@Model.UserName" style="max-width: 200px;" />
+                </dd>
+            }
+        </dl>
+    </div>
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Sil</button>
+        <a href="@Url.Action("Index", "User")" class="btn btn-secondary">İptal</a>
+    </form>
+</div>
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+
+}

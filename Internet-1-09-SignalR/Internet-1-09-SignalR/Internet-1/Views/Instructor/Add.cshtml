@@ -1,0 +1,63 @@
+﻿@model LessonInstructorModel
+
+@{
+    ViewData["Title"] = "Eğitmen Ekle";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="container">
+    <h2 class="mb-4">Yeni Eğitmen Ekle</h2>
+
+    <form asp-controller="Instructor" asp-action="Add" method="post">
+        <div class="form-group">
+            <label for="Fullname">Ad Soyad</label>
+            <input type="text" id="Fullname" name="Fullname" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="IsActive" name="IsActive" checked>
+                <label class="custom-control-label" for="IsActive">Aktif</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Eğitmen Ekle</button>
+            <a href="@Url.Action("Index", "Instructor")" class="btn btn-secondary">İptal</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/js/SignalR.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('form').submit(function (e) {
+                e.preventDefault();
+
+                var formData = {
+                    Fullname: $('#Fullname').val(),
+                    IsActive: $('#IsActive').is(':checked')
+                };
+
+                $.ajax({
+                    url: '@Url.Action("Add", "Instructor")',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = '@Url.Action("Index", "Instructor")';
+                        } else {
+                            console.error(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Hata:', error);
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,91 @@
+﻿@model UserModel
+
+@{
+    ViewData["Title"] = "Kullanıcı Güncelle";
+    Layout = "_LayoutAdmin";
+}
+
+@section CardHeader {
+    <span>Kullanıcı Güncelle</span>
+}
+
+<div class="container">
+    <form asp-action="Update" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="PhotoUrl" />
+
+        <div class="form-group mb-3">
+            <label asp-for="UserName">Kullanıcı Adı</label>
+            <input asp-for="UserName" class="form-control" readonly />
+            <span asp-validation-for="UserName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Email">E-posta</label>
+            <input asp-for="Email" class="form-control" required />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="FullName">Ad Soyad</label>
+            <input asp-for="FullName" class="form-control" required />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Password">Yeni Şifre</label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <small class="form-text text-muted">Şifreyi değiştirmek istemiyorsanız boş bırakın.</small>
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label>Rol</label>
+            <select name="SelectedRole" class="form-control" required>
+                <option value="">Rol Seçiniz</option>
+                @if (Model.UserName == "admin")
+                {
+                    <option value="Admin" selected>Admin</option>
+                }
+                else
+                {
+                    @if (Model.Role.Contains("Admin"))
+                    {
+                        <option value="Admin" selected>Admin</option>
+                    }
+                    else
+                    {
+                        <option value="Admin">Admin</option>
+                    }
+
+                    @if (Model.Role.Contains("Eğitmen"))
+                    {
+                        <option value="Eğitmen" selected>Eğitmen</option>
+                    }
+                    else
+                    {
+                        <option value="Eğitmen">Eğitmen</option>
+                    }
+
+                    @if (Model.Role.Contains("Uye"))
+                    {
+                        <option value="Uye" selected>Üye</option>
+                    }
+                    else
+                    {
+                        <option value="Uye">Üye</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Güncelle</button>
+            <a href="@Url.Action("Index", "User")" class="btn btn-secondary">İptal</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,159 @@
+﻿@model VideoViewModel
+
+@{
+    ViewData["Title"] = "Videolar";
+    Layout = "_LayoutAdmin";
+}
+
+@section CardHeader {
+    <span>Videolar</span>
+}
+
+<div class="mb-3">
+    <a href="@Url.Action("Add", "Video")" class="btn btn-primary btn-sm">Yeni Video Ekle</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Video Önizleme</th>
+                <th>Video Adı</th>
+                <th>Kullanıldığı Dersler</th>
+                <th>Durum</th>
+                <th>Oluşturulma Tarihi</th>
+                <th>Güncellenme Tarihi</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var video in Model.Videos)
+            {
+                <tr>
+                    <td style="width: 200px;">
+                        @if (!string.IsNullOrEmpty(video.VideoUrl))
+                        {
+                            <video width="180" height="100" controls>
+                                <source src="@video.VideoUrl" type="video/mp4">
+                                Tarayıcınız video etiketini desteklemiyor.
+                            </video>
+                        }
+                    </td>
+                    <td>@video.Name</td>
+                    <td>
+                        @{
+                            var relatedLessons = Model.Lessons.Where(l => l.VideoId == video.Id).ToList();
+                            if (relatedLessons.Any())
+                            {
+                                foreach (var lesson in relatedLessons)
+                                {
+                                    var instructor = Model.Instructors.FirstOrDefault(i => i.Id == lesson.InstructorId);
+                                    <div class="mb-1">
+                                        <span>
+                                            @lesson.Name
+                                            @if (instructor != null)
+                                            {
+                                                <small>(@instructor.FullName)</small>
+                                            }
+                                        </span>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Henüz hiçbir derste kullanılmıyor</span>
+                            }
+                        }
+                    </td>
+                    <td>
+                        @if (video.IsActive)
+                        {
+                            <span class="badge bg-success">Aktif</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Pasif</span>
+                        }
+                    </td>
+                    @foreach (var lesson in Model.Lessons)
+                    {
+                        <td>@lesson.Created.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@lesson.Updated.ToString("dd.MM.yyyy HH:mm")</td>
+                    }
+
+
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-info"
+                                onclick="playVideo('@video.VideoUrl', '@video.Name')">
+                                <i class="fas fa-play"></i> İzle
+                            </button>
+                            <a href="@Url.Action("Update", "Video", new { id = video.Id })" class="btn btn-primary btn-sm">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </a>
+                            <a href="@Url.Action("Delete", "Video", new { id = video.Id })" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Sil
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Videos.Any())
+{
+    <div class="alert alert-info">
+        Henüz hiç video eklenmemiş.
+    </div>
+}
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <video id="modalVideo" width="100%" controls>
+                    <source src="" type="video/mp4">
+                    Tarayıcınız video etiketini desteklemiyor.
+                </video>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function playVideo(url, title) {
+            var modal = new bootstrap.Modal(document.getElementById('videoModal'));
+            var video = document.getElementById('modalVideo');
+            var modalTitle = document.getElementById('videoModalTitle');
+
+            video.src = url;
+            modalTitle.textContent = title;
+            modal.show();
+
+            // Modal kapandığında videoyu durdur
+            $('#videoModal').on('hidden.bs.modal', function () {
+                video.pause();
+                video.currentTime = 0;
+            });
+        }
+
+        $(document).ready(function () {
+            // Tablodaki videoları durdur
+            $('video').on('play', function () {
+                $('video').not(this).each(function () {
+                    $(this).get(0).pause();
+                });
+            });
+        });
+    </script>
+}
