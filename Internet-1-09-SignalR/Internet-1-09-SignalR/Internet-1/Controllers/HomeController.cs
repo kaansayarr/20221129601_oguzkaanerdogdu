@@ -21,6 +21,7 @@ namespace Internet_1.Controllers
         private readonly IMapper _mapper;
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly RoleManager<AppRole> _roleManager;
         private readonly INotyfService _notyf;
         private readonly IHubContext<GeneralHub> _generalHub;
 
@@ -28,22 +29,22 @@ namespace Internet_1.Controllers
             ILogger<HomeController> logger,
             LessonRepository lessonRepository,
             VideoRepository videoRepository,
-            InstructorRepository instrucorRepository,
+            InstructorRepository instructorRepository,
             IMapper mapper,
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
+            RoleManager<AppRole> roleManager,
             INotyfService notyf,
-            IHubContext<GeneralHub> generalHub
-            )
-
+            IHubContext<GeneralHub> generalHub)
         {
             _logger = logger;
             _lessonRepository = lessonRepository;
             _videoRepository = videoRepository;
-            _instructorRepository = instrucorRepository;
+            _instructorRepository = instructorRepository;
             _mapper = mapper;
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _notyf = notyf;
             _generalHub = generalHub;
         }
@@ -80,6 +81,44 @@ namespace Internet_1.Controllers
                 _notyf.Error("Ders listesi yüklenirken bir hata oluştu.");
                 return View(new LessonViewModel());
             }
+        }
+
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterModel model)
+        {
+            var identityResult = await _userManager.CreateAsync(new() { UserName = model.UserName, Email = model.Email, FullName = model.FullName, PhotoUrl = "no-img.png" }, model.Password);
+
+            if (!identityResult.Succeeded)
+            {
+                foreach (var item in identityResult.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+
+
+                    _notyf.Error(item.Description);
+                }
+
+                return View(model);
+            }
+
+            // default olarak Uye rolü ekleme
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            var roleExist = await _roleManager.RoleExistsAsync("Uye");
+            if (!roleExist)
+            {
+                var role = new AppRole { Name = "Uye" };
+                await _roleManager.CreateAsync(role);
+            }
+
+            await _userManager.AddToRoleAsync(user, "Uye");
+            await _generalHub.Clients.All.SendAsync("onUserAdd");
+            _notyf.Success("Üye Kaydı Yapılmıştır. Oturum Açınız");
+            return RedirectToAction("Login");
         }
 
         public IActionResult Login(string returnUrl = null)
